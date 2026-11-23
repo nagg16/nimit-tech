@@ -1,7 +1,7 @@
-import { siteConfig } from "@/lib/site";
+import { formatCertDate, siteConfig } from "@/lib/site";
 
 export function AuthorCard({ compact = false }: { compact?: boolean }) {
-  const { author } = siteConfig;
+  const { author, credlyInfoUrl, credlyProfileUrl } = siteConfig;
 
   if (compact) {
     return (
@@ -25,6 +25,14 @@ export function AuthorCard({ compact = false }: { compact?: boolean }) {
             className="font-medium text-accent-deep underline-offset-4 hover:underline"
           >
             GitHub
+          </a>
+          <a
+            href={credlyProfileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-accent-deep underline-offset-4 hover:underline"
+          >
+            Credly
           </a>
         </div>
         <p className="mt-4 text-xs leading-relaxed text-ink-soft">
@@ -50,6 +58,52 @@ export function AuthorCard({ compact = false }: { compact?: boolean }) {
           </li>
         ))}
       </ul>
+
+      <div className="mt-8 border-t border-line pt-6">
+        <p className="text-xs tracking-wide text-ink-soft uppercase">Certifications</p>
+        <p className="mt-1 text-sm text-ink-soft">
+          Verified digital badges on{" "}
+          <a
+            href={credlyProfileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="font-medium text-accent-deep underline-offset-4 hover:underline"
+          >
+            Credly
+          </a>{" "}
+          (
+          <a
+            href={credlyInfoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline-offset-4 hover:underline"
+          >
+            about Credly
+          </a>
+          ).
+        </p>
+        <ul className="mt-4 space-y-3">
+          {author.certifications.map((cert) => (
+            <li key={cert.url} className="border border-line bg-mist/30 px-4 py-3">
+              <a
+                href={cert.url}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="font-medium text-ink underline-offset-4 hover:text-accent-deep hover:underline"
+              >
+                {cert.name}
+              </a>
+              <p className="mt-1 text-xs text-ink-soft">
+                {cert.issuer}
+                {" · Issued "}
+                {formatCertDate(cert.issued)}
+                {cert.expires ? ` · Expires ${formatCertDate(cert.expires)}` : null}
+              </p>
+            </li>
+          ))}
+        </ul>
+      </div>
+
       <div className="mt-6 flex flex-wrap gap-4 text-sm">
         <a
           href={author.linkedIn}
@@ -66,6 +120,14 @@ export function AuthorCard({ compact = false }: { compact?: boolean }) {
           className="font-medium text-accent-deep underline-offset-4 hover:underline"
         >
           GitHub
+        </a>
+        <a
+          href={credlyProfileUrl}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="font-medium text-accent-deep underline-offset-4 hover:underline"
+        >
+          Credly profile
         </a>
       </div>
       <p className="mt-5 text-xs leading-relaxed text-ink-soft">
