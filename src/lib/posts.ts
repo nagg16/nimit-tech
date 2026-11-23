@@ -11,6 +11,7 @@ export type PostMeta = {
   source?: string;
   testedWith?: string;
   featured?: boolean;
+  related?: string[];
 };
 
 export type Post = PostMeta & {
@@ -24,6 +25,21 @@ export type TocItem = {
 };
 
 const postsDirectory = path.join(process.cwd(), "content", "posts");
+
+const MONTHS = [
+  "January",
+  "February",
+  "March",
+  "April",
+  "May",
+  "June",
+  "July",
+  "August",
+  "September",
+  "October",
+  "November",
+  "December",
+];
 
 function slugifyHeading(text: string): string {
   return text
@@ -48,6 +64,7 @@ function readPostFile(fileName: string): Post {
     source: data.source ? String(data.source) : undefined,
     testedWith: data.testedWith ? String(data.testedWith) : undefined,
     featured: Boolean(data.featured),
+    related: Array.isArray(data.related) ? data.related.map(String) : undefined,
     content,
   };
 }
@@ -111,15 +128,39 @@ export function getTagBySlug(tagSlug: string): string | null {
 export function getRelatedPosts(slug: string, limit = 3): PostMeta[] {
   const current = getPostBySlug(slug);
   if (!current) return [];
+
+  const bySlug = new Map(getAllPosts().map((p) => [p.slug, p]));
+  const picked: PostMeta[] = [];
+
+  for (const relatedSlug of current.related ?? []) {
+    const post = bySlug.get(relatedSlug);
+    if (post && post.slug !== slug) picked.push(post);
+    if (picked.length >= limit) return picked;
+  }
+
   const scored = getAllPosts()
-    .filter((p) => p.slug !== slug)
+    .filter((p) => p.slug !== slug && !picked.some((x) => x.slug === p.slug))
     .map((p) => ({
       post: p,
       score: p.tags.filter((t) => current.tags.includes(t)).length,
     }))
     .filter((x) => x.score > 0)
     .sort((a, b) => b.score - a.score || (a.post.date < b.post.date ? 1 : -1));
-  return scored.slice(0, limit).map((x) => x.post);
+
+  for (const item of scored) {
+    picked.push(item.post);
+    if (picked.length >= limit) break;
+  }
+
+  if (picked.length < limit) {
+    for (const post of getAllPosts()) {
+      if (post.slug === slug || picked.some((x) => x.slug === post.slug)) continue;
+      picked.push(post);
+      if (picked.length >= limit) break;
+    }
+  }
+
+  return picked;
 }
 
 export function getAdjacentPosts(slug: string): {
@@ -157,12 +198,19 @@ export function extractToc(content: string): TocItem[] {
   return items;
 }
 
+/** Format YYYY-MM-DD without timezone shift. */
 export function formatDate(date: string): string {
-  const d = new Date(`${date}T12:00:00`);
-  if (Number.isNaN(d.getTime())) return date;
-  return d.toLocaleDateString("en-US", {
-    year: "numeric",
-    month: "long",
-    day: "numeric",
-  });
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim());
+  if (!match) return date;
+  const year = match[1];
+  const monthIndex = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  if (monthIndex < 0 || monthIndex > 11 || day < 1 || day > 31) return date;
+  return `${MONTHS[monthIndex]} ${day}, ${year}`;
+}
+
+export function parseDateOnly(date: string): Date {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(date.trim());
+  if (!match) return new Date(date);
+  return new Date(Date.UTC(Number(match[1]), Number(match[2]) - 1, Number(match[3]), 12));
 }

@@ -9,12 +9,24 @@ description: >-
 tags:
   - SitecoreAI
   - Next.js
-  - Personalize
-  - CDP
+  - CDP / Personalize
 source: 'https://nextgentechbynimit.blogspot.com/'
-testedWith: SitecoreAI Personalize + Next.js App Router as of Sep 2026
+testedWith: >-
+  SitecoreAI Personalize middleware + Next.js App Router (pin Content SDK / JSS
+  versions in package.json)
 featured: true
+related:
+  - xm-cloud-nextjs-cache-invalidation
+  - sitecore-ai-decoupled-deployment
+  - sitecoreai-xm-cloud-content-serialization
 ---
+> **TL;DR**
+>
+> - Keep personalization off the critical path where possible; use middleware timeouts with safe fallbacks.
+> - Treat timeout numbers in diagrams as **examples** — read actual defaults from your JSS / Content SDK release notes.
+> - Pin and document CDP + Experience Edge timeout env vars per environment.
+> - Debug with the personalize middleware debug flag before changing architecture.
+
 With SitecoreAI, Next.js, Experience Edge, CDP and Personalize, personalization can influence the experience delivered to a visitor without requiring the application to generate a completely separate website for every audience. 
 
  The challenge is making this architecture reliable and fast. Personalization introduces additional processing into the request lifecycle, and a poorly configured implementation can result in latency, unexpected variants, incorrect environment configuration or difficult-to-diagnose production issues. 
@@ -262,7 +274,7 @@ Response
 
 ## 7. Configure Timeouts Carefully
 
- External personalization calls should always have sensible timeout behavior. 
+ External personalization calls should always have sensible timeout behavior. The `200 ms` / `250 ms` figures in the diagram below are **illustrative examples**, not documented product defaults. Check the defaults for your installed `@sitecore-jss/*` or Sitecore Content SDK packages, then set `PERSONALIZE_MIDDLEWARE_CDP_TIMEOUT` and `PERSONALIZE_MIDDLEWARE_EDGE_TIMEOUT` explicitly per environment. 
 
  A production application should not allow a personalization dependency to hold a visitor request indefinitely. 
 

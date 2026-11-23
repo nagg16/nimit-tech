@@ -1,145 +1,127 @@
 ---
-title: 'Sitecore AI Decoupled Deployment: Converting Coupled Projects'
+title: 'SitecoreAI Decoupled Deployment: Converting Coupled Projects'
 date: '2026-02-12'
 description: >-
-  How Sitecore AI decoupled deployment separates authoring and editing hosts,
-  and what it means for DevOps.
+  How SitecoreAI decoupled deployment separates authoring and editing hosts,
+  what Convert Project does, and how DevOps teams should prepare.
 tags:
   - SitecoreAI
   - DevOps
   - Architecture
 source: 'https://nextgentechbynimit.blogspot.com/'
-testedWith: SitecoreAI decoupled deployment as of Feb 2026
+testedWith: SitecoreAI decoupled deployment / Deploy App (early 2026)
+related:
+  - azure-devops-hosted-vs-self-hosted-agents
+  - sitecoreai-xm-cloud-content-serialization
+  - sitecoreai-personalization-nextjs
 ---
-With recent platform updates, Sitecore AI introduces a decoupled deployment model that separates:
+> **TL;DR**
+>
+> - SitecoreAI **decoupled deployment** splits **authoring** and **editing host** into separately deployable units.
+> - Conversion is triggered in Deploy App and redeploys authoring environments and editing hosts.
+> - Use **SitecoreAI** (one word) as the product name in new writing; older "Sitecore AI" docs may still appear in product UI.
+> - Treat rollback as an operational risk: confirm current recovery options with Sitecore Support / your CSM before converting production.
 
-- Authoring Environments
-- Editing Hosts
+SitecoreAI (formerly XM Cloud) continues to move editing and authoring toward independently deployable units. Teams that started on a **coupled** project layout eventually need to understand what **decoupled deployment** changes for repositories, pipelines, and release risk.
 
-into independently deployable units.
+## 1. Why coupled projects become a constraint
 
-Legacy Sitecore AI projects were deployed using a coupled architecture, where authoring and editing capabilities were bundled within a single deployment pipeline and repository structure.
-
-This limits:
+In a coupled model, authoring and editing capabilities ship together. That simplifies the first environment, but it limits:
 
 - Environment-level configuration flexibility
-- Independent scaling
-- Deployment isolation
-- AI feature enablement aligned with new platform standards
+- Independent scaling of editing vs authoring
+- Deployment isolation (a frontend/editing change forces a wider blast radius)
+- Aligning AI editing features with current SitecoreAI platform standards
 
-### 2. What is Decoupled Deployment in Sitecore AI?
+Official product documentation for XM Cloud / SitecoreAI deployment models lives under Sitecore's Deploy / documentation portals — always confirm the Convert Project flow against the version of Deploy App your organization uses.
 
-In the Decoupled Deployment Strategy:
+## 2. What decoupled deployment means
 
-| Component | Deployment |
-| --- | --- |
-| Authoring Environment | Independently deployed |
-| Editing Host | Independently deployed |
-| Repository Structure | Separate repositories |
-| Deployment Pipeline | Environment-specific |
-| Configuration | Granular & isolated |
+| Component | Coupled | Decoupled |
+| --- | --- | --- |
+| Authoring environment | Bundled with editing | Independently deployed |
+| Editing host | Bundled with authoring | Independently deployed |
+| Repositories | Often one project tree | Separate repos (typical) |
+| Pipelines | Shared or tightly coupled | Environment-specific |
+| Configuration | Shared surface area | Granular and isolated |
 
-This allows:
+Outcomes teams usually want:
 
-- Editing host updates without redeploying authoring environments
-- Authoring environment changes without impacting editing runtime
-- Independent environment promotion
+- Ship editing-host updates without redeploying every authoring environment
+- Change authoring configuration without recycling the editing runtime
+- Promote environments with clearer ownership boundaries
 
-### 3. Architectural Changes Post-Conversion
+## 3. Topology after conversion
 
-After conversion:
+```mermaid
+flowchart TB
+  subgraph Coupled["Coupled project"]
+    C1[Single project deployment]
+    C1 --> C2[Authoring + Editing Host bundled]
+  end
 
-#### 🔹 Deployment Topology
+  subgraph Decoupled["Decoupled model"]
+    A1[Authoring environment]
+    A1 --> A2[Repo A]
+    A1 --> A3[Pipeline A]
+    E1[Editing host]
+    E1 --> E2[Repo B]
+    E1 --> E3[Pipeline B]
+  end
 
-Moves from:
+  Coupled --> Decoupled
+```
 
-`Single Project Deployment
- └── Authoring + Editing Host (Bundled)
-`
+Each side typically gains:
 
-`Decoupled Deployment Model
-
-Authoring Environment
- └── Repo A
- └── Deployment Pipeline A
-
-Editing Host
- └── Repo B
- └── Deployment Pipeline B
-`
-
-#### 🔹 Repository Structure
-
-Each of the following will now have:
-
-- Separate source control
-- Independent CI/CD lifecycle
+- Its own source control
+- An independent CI/CD lifecycle
 - Environment-specific configuration
 
-This aligns with:
+That matches a SaaS-managed editing host plus separately promoted authoring environments.
 
-✔ Latest Sitecore AI runtime model ✔ SaaS-managed editing infrastructure ✔ Scalable deployment standards
+## 4. What Convert Project does
 
-### 4. Deployment Behavior
-
-When the Convert Project option is triggered via:
+In Deploy App the conversion path is conceptually:
 
 > Deploy App → Project → Options → Convert Project → Confirm
 
-Sitecore will:
+Sitecore then:
 
-- Initiate a fresh deployment
-- Redeploy:
+1. Starts a fresh deployment cycle for the project
+2. Redeploys **all authoring environments**
+3. Redeploys **all editing hosts**
 
-- All authoring environments
-- All editing hosts
+The conversion is automated from a code-migration perspective, but it is still a **production-affecting platform operation**. Schedule it like a release: communications, freeze window, and a verified smoke plan for authoring and editing.
 
-This process:
+## 5. DevOps checklist before you convert
 
-- Is automated
-- Requires no manual code migration
-- Updates deployment topology internally
+- Inventory every pipeline that assumes a single coupled artifact.
+- Split secrets and variable groups so authoring and editing do not share unnecessary credentials.
+- Confirm Next.js / editing-host build pins (Node version, Content SDK / JSS packages).
+- Confirm serialization / content promotion still targets the correct authoring environment after the split.
+- Document who owns editing-host releases vs authoring releases.
+- Run the conversion first on a non-production project when your license/tenant allows.
 
-### 5. DevOps Impact
+## 6. Rollback and recovery
 
-| Area | Impact |
-| --- | --- |
-| Application Code | ❌ No Change |
-| AI SDK Usage | ❌ No Change |
-| Editing Runtime | ✅ Re-deployed |
-| Authoring Environment | ✅ Re-deployed |
-| Repository Mapping | ✅ Separated |
-| Deployment Pipelines | ✅ Independent |
-| Environment Config | ✅ Granular Control |
+Do not assume a one-click "uncouple undo" exists for every tenant. Sitecore's SaaS deployment surface evolves; recovery after a failed or undesired conversion may require **Sitecore Support** (or your Customer Success contact) to restore project state. Capture:
 
-### 6. Benefits of Conversion
+- Pre-conversion project identifiers and environment names
+- Pipeline run IDs and Deploy App activity logs
+- A tested content/authoring smoke checklist
 
-- Aligns legacy projects with latest Sitecore AI deployment standards
-- Enables independent lifecycle management
-- Reduces deployment coupling risk
-- Supports scalable AI editing workloads
-- Improves environment-level governance
-- Minimizes downtime during updates
+Treat Support engagement as part of the runbook, not an afterthought. Verify the current recovery path with Sitecore for your exact Deploy App generation before converting production.
 
-### 7. Risks & Considerations
+## 7. Spelling: SitecoreAI
 
-- Conversion is environment-wide
-- Triggers redeployment of all editing hosts
-- Rollback is not self-service
-- Requires Sitecore Support to undo conversion
-- Temporary deployment downtime may occur
+This site standardizes on **SitecoreAI**. Product UI and older documents may still say "Sitecore AI" or "XM Cloud." In pipelines and docs for your team, pick one spelling and stick to it in YAML comments, wiki pages, and ticket titles.
 
-### 8. Recommendation
+## 8. Where to read next
 
-- Perform conversion in lower environments first
-- Validate editing host connectivity post-deployment
-- Sync CI/CD pipelines with new repository structure
-- Engage Sitecore Support for rollback contingency
+- Sitecore documentation for XM Cloud / SitecoreAI deployment and editing hosts (official docs for your release)
+- Related on this site: serialization CI failures, Next.js cache invalidation, and Azure Pipelines agent choice
 
-### 9. Outcome
+## Version stamp
 
-Post conversion:
-
-✔ Authoring & Editing deployments become independent ✔ Project aligns with latest Sitecore AI architecture ✔ Deployment flexibility improves ✔ AI feature rollout becomes environment-isolated
-
-This conversion is a platform-level architectural shift, enabling projects to adopt Sitecore’s modern decoupled AI deployment model without requiring application-level changes.
+Written against SitecoreAI / XM Cloud decoupled-deployment guidance as discussed in early 2026 delivery work. Re-validate Convert Project behavior in your tenant's Deploy App before executing.

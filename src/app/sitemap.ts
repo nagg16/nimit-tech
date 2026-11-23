@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { getAllPosts, getAllTags } from "@/lib/posts";
+import { getAllPosts, getAllTags, parseDateOnly } from "@/lib/posts";
 import { absoluteUrl } from "@/lib/site";
 
 export const dynamic = "force-static";
@@ -12,7 +12,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
 
   const articles = getAllPosts().map((post) => ({
     url: absoluteUrl(`/articles/${post.slug}`),
-    lastModified: new Date(post.date),
+    lastModified: parseDateOnly(post.date),
   }));
 
   const topics = getAllTags().map(({ slug }) => ({

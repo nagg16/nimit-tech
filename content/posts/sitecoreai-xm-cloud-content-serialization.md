@@ -7,13 +7,17 @@ description: >-
 tags:
   - SitecoreAI
   - XM Cloud
-  - SCS
   - DevOps
+  - Serialization
 source: 'https://nextgentechbynimit.blogspot.com/'
 testedWith: Sitecore CLI 6.x / SitecoreAI as of Sep 2026
 featured: true
+related:
+  - xm-cloud-nextjs-cache-invalidation
+  - sitecore-ai-decoupled-deployment
+  - azure-devops-hosted-vs-self-hosted-agents
 ---
-> **Key takeaways**
+> **TL;DR / Key takeaways**
 >
 > - Treat SCS modules as an explicit dependency graph, not a pile of YAML files.
 > - Fail the pipeline on `ser validate` / `ser info` before deploy — never after.
@@ -446,7 +450,9 @@ steps:
 
  The exact commands and SDK versions should match the Sitecore CLI and project version used by the solution.
 
-Download a starter pipeline: [scs-azure-pipelines.sample.yml](/assets/scs-azure-pipelines.sample.yml). 
+Download a starter pipeline: [scs-azure-pipelines.sample.yml](/assets/scs-azure-pipelines.sample.yml).
+
+Sample module file: [feature.navigation.module.json](/assets/feature.navigation.module.json). 
 
 ## 12. Why “Works Locally” but Fails in Azure DevOps
 

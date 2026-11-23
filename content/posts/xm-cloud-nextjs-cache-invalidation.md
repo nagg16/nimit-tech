@@ -8,10 +8,20 @@ tags:
   - XM Cloud
   - Next.js
   - Caching
-  - ISR
 source: 'https://nextgentechbynimit.blogspot.com/'
-testedWith: XM Cloud + Experience Edge + Next.js ISR as of Sep 2026
+testedWith: Next.js 15 App Router revalidateTag + Experience Edge webhooks (2026)
+related:
+  - sitecoreai-personalization-nextjs
+  - sitecore-ai-decoupled-deployment
+  - sitecoreai-xm-cloud-content-serialization
 ---
+> **TL;DR**
+>
+> - Invalidate at the right layer: Experience Edge, Next.js cache tags/paths, and CDN — not only Sitecore publish.
+> - Protect revalidation routes with a Bearer secret and constant-time comparison.
+> - Trigger revalidation when Edge has the new content, not only when CM finishes publishing.
+> - Confirm `revalidateTag` / `revalidatePath` signatures for your Next.js major version.
+
 Modern Sitecore XM Cloud implementations often combine Sitecore content management, Experience Edge, Next.js and a cloud hosting platform such as Vercel. This architecture provides excellent scalability and performance, but it introduces one important production challenge: how do we make sure newly published content becomes visible to users without unnecessarily rebuilding or invalidating the entire website? 
 
  In a traditional Sitecore MVC implementation, developers are familiar with Sitecore HTML caching, item caching and publishing-related cache clearing. With a headless architecture, caching exists at multiple layers, so the problem requires a different way of thinking. 
@@ -232,26 +242,29 @@ Fresh page/content
 ```
 
 import { revalidatePath, revalidateTag } from 'next/cache';
+import { timingSafeEqual } from 'crypto';
+
+function secretsEqual(a, b) {
+  const left = Buffer.from(a);
+  const right = Buffer.from(b);
+  if (left.length !== right.length) return false;
+  return timingSafeEqual(left, right);
+}
 
 export async function POST(request) {
-
-  const body = await request.json();
-
-  // Validate the webhook before processing it.
-  if (body.secret !== process.env.REVALIDATION_SECRET) {
-    return Response.json(
-      { message: 'Unauthorized' },
-      { status: 401 }
-    );
+  const auth = request.headers.get('authorization') ?? '';
+  const expected = `Bearer ${process.env.REVALIDATION_SECRET ?? ''}`;
+  if (!process.env.REVALIDATION_SECRET || !secretsEqual(auth, expected)) {
+    return Response.json({ message: 'Invalid token' }, { status: 401 });
   }
 
+  const body = await request.json();
   const path = body.path;
-
   if (path) {
     revalidatePath(path);
   }
-
   if (body.tag) {
+    // Next.js 15+: confirm revalidateTag(tag) / cacheLife options for your version
     revalidateTag(body.tag);
   }
 
@@ -286,6 +299,10 @@ export async function POST(request) {
 POST /api/revalidate
 
 Authorization: Bearer <secret>
+
+Use the same Bearer check in the route handler (see example above). Do not accept the secret only in the JSON body.
+
+Trigger this webhook when **Experience Edge has finished receiving the publish** (an Edge completion webhook), not solely on the Sitecore CM publish-end event. Otherwise Next.js may revalidate and refetch while Edge still serves the previous generation.
 
 {
   "path": "/products/product-a",

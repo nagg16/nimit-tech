@@ -31,6 +31,7 @@ export const siteConfig = {
     ],
     linkedIn: "https://www.linkedin.com/in/nimit-aggarwal-39253655",
     github: "https://github.com/nagg16",
+    email: "nimit.aggarwal@altudo.co",
     certifications: [
       {
         name: "Optimizely Certified CMS PaaS Developer (Advanced, 2027)",
