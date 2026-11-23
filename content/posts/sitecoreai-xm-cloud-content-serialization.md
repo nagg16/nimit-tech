@@ -1,44 +1,39 @@
 ---
-title: "SitecoreAI/XM Cloud Content Serialization: Troubleshooting CI/CD Deployment Failures"
-date: 2026-09-23
-description: "Diagnose Sitecore Content Serialization failures in SitecoreAI/XM Cloud CI/CD pipelines and build a reliable module dependency strategy."
-tags: ["SitecoreAI", "XM Cloud", "SCS", "DevOps"]
-source: "https://nextgentechbynimit.blogspot.com/"
+title: 'SitecoreAI Content Serialization: Fixing CI/CD Failures'
+date: '2026-09-24'
+description: >-
+  Diagnose Sitecore Content Serialization failures in SitecoreAI/XM Cloud
+  pipelines and build a reliable module dependency strategy.
+tags:
+  - SitecoreAI
+  - XM Cloud
+  - SCS
+  - DevOps
+source: 'https://nextgentechbynimit.blogspot.com/'
+testedWith: Sitecore CLI 6.x / SitecoreAI as of Sep 2026
+featured: true
 ---
+> **Key takeaways**
+>
+> - Treat SCS modules as an explicit dependency graph, not a pile of YAML files.
+> - Fail the pipeline on `ser validate` / `ser info` before deploy — never after.
+> - CI agents need CLI install + auth; local developer login does not transfer.
+> - Wildcard module globs must match your folder depth (`src/*/*.module.json` vs `src/*/*/*.module.json`).
+> - Prefer `ubuntu-latest` for CLI-only jobs unless a Windows-only tool is required.
 
-## Thursday, September 24, 2026
-
-### SitecoreAI/XM Cloud Content Serialization: Troubleshooting CI/CD Deployment Failures 
-
- One of the most important DevOps capabilities in a modern SitecoreAI (formerly XM Cloud) implementation is Sitecore Content Serialization (SCS). It allows Sitecore items to be represented as files, stored in source control, reviewed through pull requests, and deployed across environments in a repeatable way. 
+One of the most important DevOps capabilities in a modern SitecoreAI (formerly XM Cloud) implementation is Sitecore Content Serialization (SCS). It allows Sitecore items to be represented as files, stored in source control, reviewed through pull requests, and deployed across environments in a repeatable way. 
 
  When SCS is configured correctly, a typical development workflow looks simple: 
 
-```
-
-Developer
-   |
-   v
-Sitecore changes
-   |
-   v
-SCS Pull
-   |
-   v
-YAML files
-   |
-   v
-Git
-   |
-   v
-Pull Request
-   |
-   v
-CI/CD
-   |
-   v
-XM Cloud / SitecoreAI
-
+```mermaid
+flowchart TD
+  A[Developer] --> B[Sitecore changes]
+  B --> C[SCS Pull]
+  C --> D[YAML files]
+  D --> E[Git]
+  E --> F[Pull Request]
+  F --> G[CI/CD]
+  G --> H[XM Cloud / SitecoreAI]
 ```
 
  But serialization failures can become surprisingly difficult to diagnose. Typical errors include: 
@@ -60,25 +55,13 @@ XM Cloud / SitecoreAI
 
  Conceptually: 
 
-```
-
-Sitecore Item
-     |
-     v
-Serialization
-     |
-     v
-YAML
-     |
-     v
-Git
-     |
-     v
-CI/CD
-     |
-     v
-Target Sitecore Environment
-
+```mermaid
+flowchart TD
+  A[Sitecore Item] --> B[Serialization]
+  B --> C[YAML]
+  C --> D[Git]
+  D --> E[CI/CD]
+  E --> F[Target Sitecore Environment]
 ```
 
  The serialized representation contains information such as the item ID, path, template and field values. 
@@ -116,24 +99,15 @@ Target Sitecore Environment
 
  A simplified solution might look like this: 
 
-```
-
-src/
- |
- +-- Foundation/
- |     |
- |     +-- Foundation.Serialization/
- |
- +-- Feature/
- |     |
- |     +-- Feature.Navigation/
- |     +-- Feature.Search/
- |
- +-- Project/
-       |
-       +-- Project.Website/
-       +-- Project.Content/
-
+```mermaid
+flowchart TB
+  subgraph src
+    Foundation --> Foundation.Serialization
+    Feature --> Feature.Navigation
+    Feature --> Feature.Search
+    Project --> Project.Website
+    Project --> Project.Content
+  end
 ```
 
  Each module can define which Sitecore items it owns. 
@@ -196,13 +170,13 @@ Project.Website
 
 {
   "modules": [
-    "src/*/*.module.json"
+    "src/*/*/*.module.json"
   ]
 }
 
 ```
 
- Using a wildcard can make module discovery easier as the solution grows. 
+ Using a wildcard can make module discovery easier as the solution grows. Use `src/*/*/*.module.json` when modules live three levels under `src` (for example `src/Feature/Navigation/*.module.json`). Use `src/*/*.module.json` only for a flatter layout such as `src/Feature/*.module.json`. Pick one pattern that matches your repo and keep it consistent across environments. 
 
 ## 5. The Most Important Concept: Module Dependencies
 
@@ -371,7 +345,7 @@ dotnet sitecore ser info -t
 
 ```
 
-dotnet sitecore ser explain --path
+dotnet sitecore ser explain --path "/sitecore/content/..."
 "/sitecore/content/..."
 
 ```
@@ -400,25 +374,15 @@ dotnet sitecore ser validate
 
  A good pipeline pattern is: 
 
-```
-
-Restore
-   |
-   v
-Build
-   |
-   v
-Serialization Validation
-   |
-   v
-Unit Tests
-   |
-   v
-Package
-   |
-   v
-Deploy
-
+```mermaid
+flowchart TD
+  A[Restore] --> B[Install Sitecore CLI]
+  B --> C[Authenticate]
+  C --> D[Build]
+  D --> E[Serialization validation]
+  E --> F[Unit tests]
+  F --> G[Package]
+  G --> H[Deploy]
 ```
 
  This is better than discovering malformed serialization only after deployment has already started. 
@@ -427,20 +391,37 @@ Deploy
 
  A simplified Azure DevOps pipeline might look like: 
 
-```
-
+```yaml
 trigger:
 - main
 
+# ubuntu-latest is usually faster/cheaper for CLI + .NET SDK jobs.
+# Use windows-latest only when a Windows-only tool or path convention is required.
 pool:
-  vmImage: 'windows-latest'
+  vmImage: 'ubuntu-latest'
 
 steps:
-
 - task: UseDotNet@2
   inputs:
     packageType: 'sdk'
     version: '8.x'
+
+- script: |
+    dotnet tool restore
+    # Or: dotnet new tool-manifest && dotnet tool install Sitecore.CLI
+  displayName: 'Restore .NET tools (Sitecore CLI)'
+
+- script: |
+    dotnet sitecore plugin init --overwrite || true
+    # Install required plugins for your CLI version, e.g.:
+    # dotnet sitecore plugin add -n Sitecore.DevEx.Extensibility.Serialization
+  displayName: 'Initialize Sitecore CLI plugins'
+
+- script: |
+    # Never assume local interactive login exists on the agent.
+    # Prefer non-interactive auth for the target environment / XM Cloud organization.
+    dotnet sitecore cloud login --client-credentials --client-id "$(CLIENT_ID)" --client-secret "$(CLIENT_SECRET)" --allow-write
+  displayName: 'Authenticate Sitecore CLI (non-interactive)'
 
 - script: |
     dotnet restore
@@ -461,10 +442,11 @@ steps:
 - script: |
     dotnet test --configuration Release
   displayName: 'Run Tests'
-
 ```
 
- The exact commands and SDK versions should match the Sitecore CLI and project version used by the solution. 
+ The exact commands and SDK versions should match the Sitecore CLI and project version used by the solution.
+
+Download a starter pipeline: [scs-azure-pipelines.sample.yml](/assets/scs-azure-pipelines.sample.yml). 
 
 ## 12. Why “Works Locally” but Fails in Azure DevOps
 
@@ -1121,3 +1103,8 @@ dotnet sitecore ser push
  A reliable Sitecore deployment is not just about deploying code. It is about reliably managing the relationship between code, serialized content, configuration, dependencies and the target environment. 
 
  Technical note: Sitecore documentation and product terminology continue to evolve as XM Cloud capabilities transition into the broader SitecoreAI platform. Always validate commands, CLI versions and build configuration against the version used by your project.
+
+
+## Version stamp
+
+Commands such as `ser diff` and `ser validate --fix` vary by Sitecore CLI version. This article was written against **Sitecore CLI 6.x / SitecoreAI as of September 2026**. Always confirm flags against the CLI version pinned in your repo.

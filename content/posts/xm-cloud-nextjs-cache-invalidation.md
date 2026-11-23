@@ -1,16 +1,18 @@
 ---
-title: "Sitecore XM Cloud + Next.js: Designing a Reliable Cache Invalidation Strategy"
-date: 2026-09-14
-description: "A practical cache-invalidation strategy for Sitecore XM Cloud, Experience Edge, Next.js, and CDN layers."
-tags: ["XM Cloud", "Next.js", "Caching", "ISR"]
-source: "https://nextgentechbynimit.blogspot.com/"
+title: 'Sitecore XM Cloud + Next.js: Designing a Reliable Cache Invalidation Strategy'
+date: '2026-09-15'
+description: >-
+  A practical cache-invalidation strategy for Sitecore XM Cloud, Experience
+  Edge, Next.js, and CDN layers.
+tags:
+  - XM Cloud
+  - Next.js
+  - Caching
+  - ISR
+source: 'https://nextgentechbynimit.blogspot.com/'
+testedWith: XM Cloud + Experience Edge + Next.js ISR as of Sep 2026
 ---
-
-## Tuesday, September 15, 2026
-
-### Sitecore XM Cloud + Next.js: Designing a Reliable Cache Invalidation Strategy 
-
- Modern Sitecore XM Cloud implementations often combine Sitecore content management, Experience Edge, Next.js and a cloud hosting platform such as Vercel. This architecture provides excellent scalability and performance, but it introduces one important production challenge: how do we make sure newly published content becomes visible to users without unnecessarily rebuilding or invalidating the entire website? 
+Modern Sitecore XM Cloud implementations often combine Sitecore content management, Experience Edge, Next.js and a cloud hosting platform such as Vercel. This architecture provides excellent scalability and performance, but it introduces one important production challenge: how do we make sure newly published content becomes visible to users without unnecessarily rebuilding or invalidating the entire website? 
 
  In a traditional Sitecore MVC implementation, developers are familiar with Sitecore HTML caching, item caching and publishing-related cache clearing. With a headless architecture, caching exists at multiple layers, so the problem requires a different way of thinking. 
 

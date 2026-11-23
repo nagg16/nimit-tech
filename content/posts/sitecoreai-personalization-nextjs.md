@@ -1,16 +1,21 @@
 ---
-title: "SitecoreAI Personalization with Next.js: Architecture, Performance and Production Troubleshooting"
-date: 2026-09-19
-description: "Practical architecture for SitecoreAI personalization with Next.js — middleware, Experience Edge, CDP, caching, and production troubleshooting."
-tags: ["SitecoreAI", "Next.js", "Personalize", "CDP"]
-source: "https://nextgentechbynimit.blogspot.com/"
+title: >-
+  SitecoreAI Personalization with Next.js: Architecture, Performance and
+  Production Troubleshooting
+date: '2026-09-20'
+description: >-
+  Practical architecture for SitecoreAI personalization with Next.js —
+  middleware, Experience Edge, CDP, caching, and production troubleshooting.
+tags:
+  - SitecoreAI
+  - Next.js
+  - Personalize
+  - CDP
+source: 'https://nextgentechbynimit.blogspot.com/'
+testedWith: SitecoreAI Personalize + Next.js App Router as of Sep 2026
+featured: true
 ---
-
-## Sunday, September 20, 2026
-
-### SitecoreAI Personalization with Next.js: Architecture, Performance and Production Troubleshooting 
-
- With SitecoreAI, Next.js, Experience Edge, CDP and Personalize, personalization can influence the experience delivered to a visitor without requiring the application to generate a completely separate website for every audience. 
+With SitecoreAI, Next.js, Experience Edge, CDP and Personalize, personalization can influence the experience delivered to a visitor without requiring the application to generate a completely separate website for every audience. 
 
  The challenge is making this architecture reliable and fast. Personalization introduces additional processing into the request lifecycle, and a poorly configured implementation can result in latency, unexpected variants, incorrect environment configuration or difficult-to-diagnose production issues. 
 

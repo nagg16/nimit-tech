@@ -1,16 +1,17 @@
 ---
-title: "Microsoft-Hosted vs Self-Hosted Agents for Next.js Builds in Azure DevOps"
-date: 2025-10-29
-description: "Compare Microsoft-hosted and self-hosted Azure DevOps agents for building Next.js apps in Sitecore XM Cloud contexts."
-tags: ["Azure DevOps", "Next.js", "CI/CD"]
-source: "https://nextgentechbynimit.blogspot.com/"
+title: Microsoft-Hosted vs Self-Hosted Agents for Next.js Builds in Azure DevOps
+date: '2025-10-30'
+description: >-
+  Compare Microsoft-hosted and self-hosted Azure DevOps agents for building
+  Next.js apps in Sitecore XM Cloud contexts.
+tags:
+  - Azure DevOps
+  - Next.js
+  - CI/CD
+source: 'https://nextgentechbynimit.blogspot.com/'
+testedWith: Azure DevOps + Next.js builds as of Oct 2025
 ---
-
-## Thursday, October 30, 2025
-
-### comparison between microsoft hosted agent and self hosted agent for build next js app in azure devops 
-
- Here’s a detailed comparison between Azure Pipelines Microsoft-hosted agents and self-hosted agents, with specific emphasis on building a Next.js app (you), so you can decide which is more appropriate for your scenario (you migrating from MVC to XM Cloud, building Next.js, etc.).
+Here’s a detailed comparison between Azure Pipelines Microsoft-hosted agents and self-hosted agents, with specific emphasis on building a Next.js app (you), so you can decide which is more appropriate for your scenario (you migrating from MVC to XM Cloud, building Next.js, etc.).
 
 ## ✅ Microsoft-hosted Agents
 

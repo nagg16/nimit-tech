@@ -1,10 +1,11 @@
-﻿import type { Metadata } from "next";
+import type { Metadata } from "next";
 import { ArticleCard } from "@/components/ArticleCard";
 import { getAllPosts } from "@/lib/posts";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "Articles",
-  description: "All technical articles on SitecoreAI, XM Cloud, Next.js, and DevOps.",
+  description: `All technical articles on SitecoreAI, XM Cloud, Next.js, and DevOps from ${siteConfig.name}.`,
 };
 
 export default function ArticlesPage() {
@@ -16,8 +17,8 @@ export default function ArticlesPage() {
         Articles
       </h1>
       <p className="mt-3 max-w-2xl text-ink-soft">
-        Migrated from nextgentechbynimit.blogspot.com — focused on SitecoreAI, XM Cloud,
-        Next.js, and delivery engineering.
+        Practical notes on SitecoreAI, XM Cloud, Next.js, personalization, serialization,
+        caching, and delivery engineering — newest first.
       </p>
       <div className="mt-10">
         {posts.map((post) => (

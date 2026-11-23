@@ -1,0 +1,39 @@
+trigger:
+- main
+
+# ubuntu-latest is usually faster/cheaper for CLI + .NET SDK jobs.
+# Use windows-latest only when a Windows-only tool or path convention is required.
+pool:
+  vmImage: 'ubuntu-latest'
+
+steps:
+- task: UseDotNet@2
+  inputs:
+    packageType: 'sdk'
+    version: '8.x'
+
+- script: |
+    dotnet tool restore
+  displayName: 'Restore .NET tools (Sitecore CLI)'
+
+- script: |
+    dotnet sitecore plugin init --overwrite || true
+  displayName: 'Initialize Sitecore CLI plugins'
+
+- script: |
+    dotnet sitecore cloud login --client-credentials --client-id "$(CLIENT_ID)" --client-secret "$(CLIENT_SECRET)" --allow-write
+  displayName: 'Authenticate Sitecore CLI (non-interactive)'
+
+- script: |
+    dotnet restore
+    dotnet build --configuration Release
+  displayName: 'Restore and build'
+
+- script: |
+    dotnet sitecore ser info
+    dotnet sitecore ser validate
+  displayName: 'Validate serialization'
+
+- script: |
+    dotnet test --configuration Release
+  displayName: 'Run tests'

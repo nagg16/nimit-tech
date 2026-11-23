@@ -1,5 +1,5 @@
-import Link from "next/link";
-import { formatDate, type PostMeta } from "@/lib/posts";
+﻿import Link from "next/link";
+import { formatDate, slugifyTag, type PostMeta } from "@/lib/posts";
 
 export function ArticleCard({ post }: { post: PostMeta }) {
   return (
@@ -7,9 +7,13 @@ export function ArticleCard({ post }: { post: PostMeta }) {
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-xs tracking-wide text-ink-soft uppercase">
         <time dateTime={post.date}>{formatDate(post.date)}</time>
         {post.tags.slice(0, 3).map((tag) => (
-          <span key={tag} className="text-accent-deep">
+          <Link
+            key={tag}
+            href={`/topics/${slugifyTag(tag)}`}
+            className="text-accent-deep underline-offset-2 hover:underline"
+          >
             {tag}
-          </span>
+          </Link>
         ))}
       </div>
       <h2 className="mt-2 font-display text-xl font-semibold tracking-tight text-ink transition-colors group-hover:text-accent-deep sm:text-2xl">

@@ -1,7 +1,8 @@
-import type { Metadata } from "next";
+﻿import type { Metadata } from "next";
 import { Sora, Source_Sans_3, IBM_Plex_Mono } from "next/font/google";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
+import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
 const display = Sora({
@@ -23,14 +24,36 @@ const mono = IBM_Plex_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteConfig.url),
   title: {
-    default: "Nimit Tech — SitecoreAI, XM Cloud & Next.js",
-    template: "%s · Nimit Tech",
+    default: `${siteConfig.name} — SitecoreAI, XM Cloud & Next.js`,
+    template: `%s · ${siteConfig.name}`,
   },
-  description:
-    "Technical writing by Nimit on SitecoreAI, XM Cloud, Next.js, personalization, serialization, and DevOps.",
-  metadataBase: new URL("https://nimit-tech.local"),
+  description: siteConfig.description,
+  authors: [{ name: siteConfig.author.name, url: siteConfig.author.linkedIn }],
+  openGraph: {
+    type: "website",
+    locale: "en_US",
+    url: siteConfig.url,
+    siteName: siteConfig.name,
+    title: `${siteConfig.name} — SitecoreAI, XM Cloud & Next.js`,
+    description: siteConfig.description,
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: `${siteConfig.name} — SitecoreAI, XM Cloud & Next.js`,
+    description: siteConfig.description,
+  },
+  alternates: {
+    types: {
+      "application/rss+xml": absoluteFeed(),
+    },
+  },
 };
+
+function absoluteFeed() {
+  return `${siteConfig.url}/rss.xml`;
+}
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
   return (
@@ -46,4 +69,3 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
     </html>
   );
 }
-

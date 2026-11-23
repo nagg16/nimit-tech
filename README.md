@@ -1,12 +1,10 @@
 # Nimit Tech
 
-Technical site for SitecoreAI, XM Cloud, Next.js, and DevOps writing by Nimit.
+Technical site for SitecoreAI, XM Cloud, Next.js, and DevOps writing by Nimit Aggarwal.
 
-Migrated from [nextgentechbynimit.blogspot.com](https://nextgentechbynimit.blogspot.com/).
+**Live site:** https://nagg16.github.io/nimit-tech/
 
-## GitHub name
-
-Recommended repository name: **nimit-tech**
+Earlier posts also existed on [nextgentechbynimit.blogspot.com](https://nextgentechbynimit.blogspot.com/). This GitHub Pages site is the canonical home. On Blogspot, add a banner or meta refresh pointing readers here (Blogger cannot issue a true 301).
 
 ## Develop
 
@@ -17,10 +15,12 @@ npm run dev
 
 Open [http://localhost:3000](http://localhost:3000).
 
-## Content
-
-Articles live in `content/posts/` as Markdown. Re-run migration from the Blogspot scrape with:
+## Build (GitHub Pages)
 
 ```bash
-node scripts/migrate-blogspot.mjs
+GITHUB_PAGES=true npm run build
 ```
+
+## Content
+
+Markdown posts live in `content/posts/`. Front matter supports `title`, `date`, `description`, `tags`, `source`, `testedWith`, and `featured`.

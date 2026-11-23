@@ -1,15 +1,16 @@
 ---
-title: "Sitecore AI Decoupled Deployment: Converting Coupled Projects"
-date: 2026-02-11
-description: "How Sitecore AI decoupled deployment separates authoring and editing hosts, and what it means for DevOps."
-tags: ["SitecoreAI", "DevOps", "Architecture"]
-source: "https://nextgentechbynimit.blogspot.com/"
+title: 'Sitecore AI Decoupled Deployment: Converting Coupled Projects'
+date: '2026-02-12'
+description: >-
+  How Sitecore AI decoupled deployment separates authoring and editing hosts,
+  and what it means for DevOps.
+tags:
+  - SitecoreAI
+  - DevOps
+  - Architecture
+source: 'https://nextgentechbynimit.blogspot.com/'
+testedWith: SitecoreAI decoupled deployment as of Feb 2026
 ---
-
-## Thursday, February 12, 2026
-
-### 1. Background
-
 With recent platform updates, Sitecore AI introduces a decoupled deployment model that separates:
 
 - Authoring Environments
